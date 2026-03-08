@@ -6,6 +6,7 @@ resource "aws_security_group_rule" "bastion_internet" {
   cidr_blocks       = ["0.0.0.0/0"]
   # which SG you are creating this rule
   security_group_id = local.bastion_sg_id
+  
 }
 
 resource "aws_security_group_rule" "mongodb_bastion" {
