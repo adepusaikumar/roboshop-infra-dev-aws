@@ -1,6 +1,6 @@
 #!/bin/bash
 sudo growpart /dev/nvme0n1 4
-sudo lvextend -r -L+30G /dev/mapper/RootVG-homeVol
+sudo lvextend -r -L +30G /dev/mapper/RootVG-homeVol
 sudo xfs_growfs /home
 
 sudo yum install -y yum-utils
