@@ -35,6 +35,7 @@ resource "aws_iam_policy" "mysql" {
 resource "aws_iam_policy_attachment" "mysql" {
   name       = "${var.project}-${var.environment}-mysql-policy-attachment"
   policy_arn = aws_iam_policy.mysql.arn
+  roles      = [aws_iam_role.mysql.name]
 }
 
 resource "aws_iam_instance_profile" "mysql" {
