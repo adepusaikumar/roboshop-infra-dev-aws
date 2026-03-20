@@ -37,6 +37,7 @@ resource "aws_route53_record" "backend_alb" {
   zone_id = var.zone_id
   name    = "*.backend-alb-${var.environment}.${var.domain_name}" #*.backend-alb-dev.rajudevops.online
   type    = "A"
+  ttl = "1"
 
   # load balancer details
   alias {
