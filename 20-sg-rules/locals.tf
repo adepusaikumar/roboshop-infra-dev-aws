@@ -9,4 +9,5 @@ locals{
     cart_sg_id = data.aws_ssm_parameter.cart_sg_id.value
     shipping_sg_id = data.aws_ssm_parameter.shipping_sg_id.value
     payment_sg_id = data.aws_ssm_parameter.payment_sg_id.value
+    backend_alb_sg_id = data.aws_ssm_parameter.backend_alb_sg_id.value
 }
