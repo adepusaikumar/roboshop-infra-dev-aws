@@ -134,6 +134,14 @@ resource "aws_autoscaling_group" "catalogue" {
     delete = "15m"
   }
 
+  instance_refresh {
+      strategy = "Rolling"
+      preferences {
+        min_healthy_percentage = 50
+      }
+      triggers = ["launch_template"]
+    }
+
   dynamic "tag" {
     for_each = merge(
         {
