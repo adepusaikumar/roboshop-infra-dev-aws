@@ -54,24 +54,6 @@ resource "aws_ami_from_instance" "catalogue" {
   )
 }
 
-resource "aws_lb_target_group" "catalogue" {
-  name        = "${var.project}-${var.environment}-catalogue"
-  port        = 8080
-  protocol    = "HTTP"
-  vpc_id      = local.vpc_id
-
-  health_check {
-    enabled = true
-    healthy_threshold = 2
-    unhealthy_threshold = 3
-    interval = 10
-    path = "/health"
-    matcher = "200-299"
-    timeout = 2
-    protocol = "HTTP"
-
-  }
-}
 
 resource "aws_launch_template" "catalogue" {
   name        = "${var.project}-${var.environment}-catalogue"
@@ -108,6 +90,25 @@ resource "aws_launch_template" "catalogue" {
         },
         local.common_tags
     )
+  }
+}
+
+resource "aws_lb_target_group" "catalogue" {
+  name        = "${var.project}-${var.environment}-catalogue"
+  port        = 8080
+  protocol    = "HTTP"
+  vpc_id      = local.vpc_id
+
+  health_check {
+    enabled = true
+    healthy_threshold = 2
+    unhealthy_threshold = 3
+    interval = 10
+    path = "/health"
+    matcher = "200-299"
+    timeout = 2
+    protocol = "HTTP"
+
   }
 }
 
@@ -158,12 +159,14 @@ resource "aws_autoscaling_group" "catalogue" {
   }
 }
 
+# Auto Scaling policy to scale based on average CPU utilization
 resource "aws_autoscaling_policy" "catalogue" {
   autoscaling_group_name = aws_autoscaling_group.catalogue.name
   name                   = "${var.project}-${var.environment}-catalogue"
   cooldown               = 120
   policy_type            = "TargetTrackingScaling"
 
+  
   target_tracking_configuration {
     predefined_metric_specification {
       predefined_metric_type = "ASGAverageCPUUtilization"
@@ -171,6 +174,23 @@ resource "aws_autoscaling_policy" "catalogue" {
 
     target_value = 70.0
   }
-
 }
 
+# This depends on target group
+
+
+resource "aws_lb_listener_rule" "catalogue" {
+  listener_arn = local.backend_alb_listener_arn
+  priority     = 10
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.catalogue.arn
+  }
+
+  condition {
+    host_header {
+      values = ["catalogue.backend-alb-${var.environment}.${var.domain_name}"]
+    }
+  }
+}
