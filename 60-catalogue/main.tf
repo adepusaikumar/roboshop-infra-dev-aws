@@ -54,7 +54,6 @@ resource "aws_ami_from_instance" "catalogue" {
   )
 }
 
-
 resource "aws_launch_template" "catalogue" {
   name        = "${var.project}-${var.environment}-catalogue"
   image_id = aws_ami_from_instance.catalogue.id
@@ -179,7 +178,6 @@ resource "aws_autoscaling_group" "catalogue" {
 resource "aws_autoscaling_policy" "catalogue" {
   autoscaling_group_name = aws_autoscaling_group.catalogue.name
   name                   = "${var.project}-${var.environment}-catalogue"
-  cooldown               = 120
   policy_type            = "TargetTrackingScaling"
 
   
