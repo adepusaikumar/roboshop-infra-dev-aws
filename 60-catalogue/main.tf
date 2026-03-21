@@ -55,5 +55,24 @@ resource "aws_ami_from_instance" "catalogue" {
   )
 }
 
+resource "aws_lb_target_group" "alb-example" {
+  name        = "${var.project}-${var.environment}-catalogue"
+  target_type = "alb"
+  port        = 8080
+  protocol    = "TCP"
+  vpc_id      = local.vpc_id
+
+  health_check {
+    enabled = true
+    healthy_threshold = 2
+    unhealthy_threshold = 3
+    interval = 10
+    path = "/health"
+    matcher = "200-299"
+    timeout = 2
+    protocol = "HTTP"
+
+  }
+}
 
 
