@@ -116,7 +116,7 @@ resource "aws_autoscaling_group" "catalogue" {
   name                      = "${var.project}-${var.environment}-catalogue"
   max_size                  = 5
   min_size                  = 1
-  desired_capacity          = 4
+  desired_capacity          = 2
   health_check_grace_period = 120
   health_check_type         = "ELB"
   force_delete              = false
@@ -134,6 +134,7 @@ resource "aws_autoscaling_group" "catalogue" {
     delete = "15m"
   }
 
+  # when we update the launch template, we want to replace the instances with new ones
   instance_refresh {
       strategy = "Rolling"
       preferences {
@@ -156,5 +157,21 @@ resource "aws_autoscaling_group" "catalogue" {
       propagate_at_launch = true
     }
   }
+}
+
+resource "aws_autoscaling_policy" "catalogue" {
+  autoscaling_group_name = aws_autoscaling_group.catalogue.name
+  name                   = "${var.project}-${var.environment}-catalogue"
+  cooldown               = 120
+  policy_type            = "TargetTrackingScaling"
+
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+
+    target_value = 70.0
+  }
+
 }
 
