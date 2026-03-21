@@ -74,4 +74,41 @@ resource "aws_lb_target_group" "catalogue" {
   }
 }
 
+resource "aws_launch_template" "example" {
+  name        = "${var.project}-${var.environment}-catalogue"
+  image_id = aws_ami_from_instance.catalogue.id
 
+  vpc_security_group_ids = [local.catalogue_sg_id]
+
+  # each time we apply terraform this version will be updated as default
+  update_default_version = true
+
+  # once autoscaling sees less traffic, it will terminate the instance
+  instance_initiated_shutdown_behavior = "terminate"
+  instance_type = "t3.micro"
+
+# tags for instances created by launch template through autoscaling
+  tag_specifications {
+    resource_type = "instance"
+
+  tags = merge(
+        {
+            Name = "${var.project}-${var.environment}-catalogue"
+        },
+        local.common_tags
+    )
+  }
+
+  # tags for instances created by launch template through autoscaling
+  tag_specifications {
+    resource_type = "volume"
+
+  tags = merge(
+        {
+            Name = "${var.project}-${var.environment}-catalogue"
+        },
+        local.common_tags
+    )
+  }
+
+}
