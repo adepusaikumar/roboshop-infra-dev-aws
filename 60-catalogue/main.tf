@@ -15,6 +15,7 @@ resource "terraform_data" "catalogue" {
   triggers_replace = [
     aws_instance.catalogue.id
   ]
+  depends_on = [ aws_ami_from_instance.catalogue ]
 
   connection {
     type     = "ssh"
