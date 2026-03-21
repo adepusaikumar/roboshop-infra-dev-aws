@@ -108,7 +108,23 @@ resource "aws_lb_target_group" "catalogue" {
     matcher = "200-299"
     timeout = 2
     protocol = "HTTP"
+  }
+}
 
+# This depends on target group
+resource "aws_lb_listener_rule" "catalogue" {
+  listener_arn = local.backend_alb_listener_arn
+  priority     = 10
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.catalogue.arn
+  }
+
+  condition {
+    host_header {
+      values = ["catalogue.backend-alb-${var.environment}.${var.domain_name}"]
+    }
   }
 }
 
@@ -176,21 +192,13 @@ resource "aws_autoscaling_policy" "catalogue" {
   }
 }
 
-# This depends on target group
+resource "terraform_data" "catalogue-delete" {
+  triggers_replace = [aws_instance.catalogue.id]
 
+  depends_on = [ aws_autoscaling_policy.catalogue ]
 
-resource "aws_lb_listener_rule" "catalogue" {
-  listener_arn = local.backend_alb_listener_arn
-  priority     = 10
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.catalogue.arn
+  provisioner "local-exec" {
+  command = "aws ec2 stop-instances --instance-ids ${aws_instance.catalogue.id}"
   }
 
-  condition {
-    host_header {
-      values = ["catalogue.backend-alb-${var.environment}.${var.domain_name}"]
-    }
-  }
 }
