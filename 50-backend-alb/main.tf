@@ -1,5 +1,5 @@
 resource "aws_lb" "backend_alb" {
-    name               = "${var.project}-${var.environment}"
+    name               = "${var.project}-${var.environment}-backend"
     internal           = true
     load_balancer_type = "application"
     security_groups    = [local.backend_alb_sg_id]
