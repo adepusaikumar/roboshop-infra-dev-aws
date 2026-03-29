@@ -13,3 +13,4 @@ resource "aws_instance" "openvpn" {
       local.common_tags,
     )
 }
+
