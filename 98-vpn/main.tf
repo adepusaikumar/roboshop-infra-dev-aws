@@ -1,0 +1,15 @@
+resource "aws_instance" "bastion" {
+  ami           = local.ami_id
+  instance_type = "t3.micro"
+  subnet_id = local.public_subnet_id
+  vpc_security_group_ids = [local.openvpn_sg_id]
+  user_data = file("./vpn.sh")
+
+  # VPN tags
+  tags = merge(
+      {
+        Name = "${var.project}-${var.environment}-openvpn"
+      },
+      local.common_tags,
+    )
+}

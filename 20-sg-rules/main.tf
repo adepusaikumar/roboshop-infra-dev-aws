@@ -323,3 +323,35 @@ resource "aws_security_group_rule" "frontend_alb_public" {
   security_group_id = local.frontend_alb_sg_id
 }
 
+# OpenVPN
+resource "aws_security_group_rule" "openvpn_public_443" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  # Where traffic is coming from
+  cidr_blocks = ["0.0.0.0/0"]
+  security_group_id = local.openvpn_sg_id
+}
+
+# Admin UI
+resource "aws_security_group_rule" "openvpn_public_943_UI" {
+  type              = "ingress"
+  from_port         = 943
+  to_port           = 943
+  protocol          = "tcp"
+  # Where traffic is coming from
+  cidr_blocks = ["0.0.0.0/0"]
+  security_group_id = local.openvpn_sg_id
+}
+
+# All Backend applications accepts traffic from OpenVPN through Backend ALB
+resource "aws_security_group_rule" "backend_alb_openvpn" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  # Where traffic is coming from
+  source_security_group_id = local.openvpn_sg_id
+  security_group_id = local.backend_alb_sg_id
+}
